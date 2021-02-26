@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import CardList from '../Components/CardList';
 import SearchBox from '../Components/SearchBox';
 import './app.css';
@@ -17,23 +17,18 @@ const mapDispatchToProps = dispatch => ({
 })
 
 
-class App extends Component {
-    constructor(){
-        super()
-        this.state={
-            robots: [],
-            loading: ''
-        }
-    }
-    componentDidMount () {
-        this.props.onRequestRobots()
-    }
+const App = (props) => {
 
-    render(){
-        const { searchField, onSearchChange, isPending, robots } = this.props;
-        const filteredRobots = robots.filter(robot => {
-            return robot.name.toLowerCase().includes(searchField.toLowerCase());
-        })
+    const { searchField, onSearchChange, isPending, robots, onRequestRobots } = props;
+
+    useEffect(() => {
+        onRequestRobots()
+    },[onRequestRobots])
+
+    const filteredRobots = robots.filter(robot => {
+        return robot.name.toLowerCase().includes(searchField.toLowerCase());
+    })
+    
         return isPending? 
             (<h1>Loading...</h1>)
         :
@@ -44,6 +39,5 @@ class App extends Component {
                     <CardList robots={filteredRobots}/>
                 </div>
             )
-    }
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);
