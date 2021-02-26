@@ -2,14 +2,18 @@ import React, { Component } from 'react';
 import CardList from '../Components/CardList';
 import SearchBox from '../Components/SearchBox';
 import './app.css';
-import { setSearchField } from '../Actions';
+import { setSearchField, requestRobots } from '../Redux/Actions';
 import { connect } from 'react-redux';
 
 const mapStateToProps = state => ({
-        searchField: state.searchField
+        searchField: state.searchRobots.searchField,
+        robots: state.requestRobots.robots,
+        isPending: state.requestRobots.isPending,
+        error: state.requestRobots.error
 })
 const mapDispatchToProps = dispatch => ({
-        onSearchChange: event => dispatch(setSearchField(event.target.value))
+        onSearchChange: event => dispatch(setSearchField(event.target.value)),
+        onRequestRobots: () => requestRobots(dispatch)
 })
 
 
@@ -22,22 +26,15 @@ class App extends Component {
         }
     }
     componentDidMount () {
-        fetch('https://jsonplaceholder.typicode.com/users')
-        .then(response => response.json())
-        .then(robots => 
-            this.setState({
-            robots: robots
-            })
-        )
+        this.props.onRequestRobots()
     }
 
     render(){
-        const { robots } = this.state;
-        const { searchField, onSearchChange } = this.props;
+        const { searchField, onSearchChange, isPending, robots } = this.props;
         const filteredRobots = robots.filter(robot => {
             return robot.name.toLowerCase().includes(searchField.toLowerCase());
         })
-        return !robots.length? 
+        return isPending? 
             (<h1>Loading...</h1>)
         :
             (
